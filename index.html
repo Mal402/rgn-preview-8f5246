@@ -1,0 +1,1482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regenera Newswire — Independent Reporting on Regenerative Medicine</title>
+<meta name="description" content="Regenera Newswire is an independent daily news hub covering stem cell research, MUSE cell therapy, clinical trials, FDA policy, and the business of regenerative medicine.">
+
+<!-- ==========================================================================
+     REGENERA NEWSWIRE — Pitch Mockup
+     Single self-contained file. No external network requests.
+     Routes (hash-based): #home  #article  #muse  #podcast
+     ========================================================================== -->
+
+<style>
+/* ============================== RESET ============================== */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+* { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; padding: 0; }
+input { font: inherit; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+h1,h2,h3,h4,h5,p,figure { margin: 0; }
+table { border-collapse: collapse; width: 100%; }
+
+/* ============================== TOKENS ============================== */
+:root{
+  --ink:#1a1a1a;
+  --ink-soft:#39352d;
+  --muted:#6f6a5f;
+  --muted-2:#8a8577;
+  --paper:#faf8f4;
+  --card:#ffffff;
+  --rule:rgba(26,26,26,.15);
+  --rule-soft:rgba(26,26,26,.09);
+  --accent:#0f5c63;
+  --accent-ink:#0a4247;
+  --accent-tint:#0f5c6312;
+  --accent-tint-2:#0f5c631f;
+  --breaking:#b3261e;
+  --breaking-tint:#b3261e0f;
+
+  --font-serif: Georgia, 'Times New Roman', Times, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+
+  --s1:.25rem; --s2:.5rem; --s3:.75rem; --s4:1rem; --s5:1.5rem;
+  --s6:2rem; --s7:3rem; --s8:4rem; --s9:6rem;
+
+  --maxw: 1240px;
+}
+
+/* ============================== BASE ============================== */
+html{ scroll-behavior: smooth; }
+body{
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  position: relative;
+  overflow-x: hidden;
+}
+/* subtle paper grain overlay */
+body::before{
+  content:"";
+  position: fixed; inset:0;
+  z-index: 2000;
+  pointer-events: none;
+  opacity: .035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.wrap{ max-width: var(--maxw); margin: 0 auto; padding: 0 var(--s5); }
+@media (max-width: 640px){ .wrap{ padding: 0 var(--s4); } }
+
+.hr{ border: none; border-top: 1px solid var(--rule); margin: 0; }
+.hr-strong{ border: none; border-top: 2px solid var(--ink); margin:0; }
+.hr-thick{ border: none; border-top: 4px solid var(--ink); margin:0; }
+
+.kicker{
+  font-family: var(--font-sans);
+  font-size: .70rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: inline-block;
+  margin-bottom: .4em;
+}
+.kicker.breaking{ color: var(--breaking); }
+.kicker-row{ display:flex; align-items:center; gap:.5em; }
+.pill-breaking{
+  background: var(--breaking); color:#fff; font-family:var(--font-sans);
+  font-size:.62rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+  padding: .18em .55em; border-radius: 2px; display:inline-block;
+}
+
+/* standing section label ("furniture") */
+.standing-label{
+  display:flex; align-items:center; justify-content: space-between;
+  gap: var(--s4);
+  padding-bottom: var(--s2);
+  margin-bottom: var(--s5);
+  border-bottom: 3px solid var(--ink);
+}
+.standing-label h2{
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.standing-label a.see-all{
+  font-family: var(--font-sans); font-size:.78rem; font-weight:700;
+  color: var(--accent); letter-spacing:.02em; white-space: nowrap;
+}
+.standing-label a.see-all:hover{ text-decoration: underline; }
+
+/* headline / deck / byline patterns */
+.hed{ font-family: var(--font-serif); font-weight: 700; color: var(--ink); line-height: 1.08; letter-spacing: -.01em; }
+a.hed-link{ display:block; }
+a.hed-link:hover .hed{ color: var(--accent); }
+.deck{ font-family: var(--font-sans); color: var(--ink-soft); line-height: 1.5; }
+.byline{ font-family: var(--font-sans); font-size: .78rem; color: var(--muted); margin-top: .55em; }
+.byline b{ color: var(--ink-soft); font-weight: 600; }
+.byline .dot{ margin: 0 .4em; opacity:.6; }
+
+/* generic story card */
+.story{ display:block; }
+.story + .story{ margin-top: var(--s5); padding-top: var(--s5); border-top: 1px solid var(--rule-soft); }
+
+.thumb-svg{
+  width:100%; aspect-ratio: 4/3; border-radius: 2px; overflow:hidden;
+  background: var(--card); border: 1px solid var(--rule);
+}
+.thumb-svg svg{ width:100%; height:100%; display:block; }
+.thumb-cap{ font-family: var(--font-sans); font-size:.68rem; color: var(--muted-2); margin-top:.4em; }
+
+/* ============================== ICON SPRITE ============================== */
+/* (defined once, referenced with <use>) */
+
+/* ============================== UTILITY BAR ============================== */
+.utility-bar{
+  background: var(--ink); color: #ece8df;
+  font-family: var(--font-sans); font-size: .74rem;
+}
+.utility-bar .wrap{ display:flex; align-items:center; justify-content:space-between; height: 34px; gap: var(--s5); }
+.utility-left{ display:flex; align-items:center; gap: var(--s5); white-space:nowrap; overflow-x:auto; }
+.utility-left::-webkit-scrollbar{ display:none; }
+.utility-left a{ color: #ece8df; opacity:.85; }
+.utility-left a:hover{ opacity:1; text-decoration: underline; }
+.utility-right{ display:flex; align-items:center; gap: var(--s4); flex-shrink:0; }
+.icon-btn{ width:15px; height:15px; color:#ece8df; opacity:.8; transition: opacity .15s; }
+.icon-btn:hover{ opacity:1; }
+.social-icons{ display:flex; align-items:center; gap: var(--s3); }
+
+/* ============================== MASTHEAD ============================== */
+.masthead{ background: var(--paper); }
+.masthead-inner{ padding: var(--s6) 0 var(--s4); text-align:center; }
+.wordmark{ display:inline-flex; align-items:center; justify-content:center; gap: var(--s3); }
+.wordmark svg{ color: var(--ink); width:38px; height:38px; flex-shrink:0; }
+.wordmark h1{
+  font-family: var(--font-serif); font-weight: 700;
+  font-size: clamp(2.1rem, 5vw, 3.4rem);
+  letter-spacing: -.01em;
+  color: var(--ink);
+}
+.tagline{
+  font-family: var(--font-sans); font-style: normal; color: var(--muted);
+  font-size: .88rem; letter-spacing:.01em; margin-top: var(--s2);
+}
+.dateline-bar{
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  font-family: var(--font-sans); font-size: .74rem; letter-spacing:.03em;
+  color: var(--ink-soft); text-transform: uppercase;
+}
+.dateline-bar .wrap{ display:flex; align-items:center; justify-content:space-between; height: 34px; }
+.dateline-bar .dl-center{ font-weight:700; color: var(--accent); }
+
+/* ============================== SECTION NAV ============================== */
+.section-nav{
+  position: sticky; top: 0; z-index: 500;
+  background: var(--paper);
+  border-bottom: 2px solid var(--ink);
+}
+.section-nav .wrap{ overflow-x: auto; -ms-overflow-style:none; scrollbar-width:none; }
+.section-nav .wrap::-webkit-scrollbar{ display:none; }
+.section-nav ul{ display:flex; align-items:center; gap: var(--s6); white-space: nowrap; height: 46px; }
+.section-nav a{
+  font-family: var(--font-sans); font-weight: 700; font-size: .82rem;
+  letter-spacing:.01em; color: var(--ink-soft);
+  padding: var(--s2) 0; border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+.section-nav a:hover{ color: var(--accent); }
+.section-nav a.active{ color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ============================== PAGES ============================== */
+.page{ display:none; }
+.page.active{ display:block; }
+
+/* ============================== LATEST RIVER ============================== */
+.latest{
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--accent);
+  padding: var(--s4) var(--s5);
+  margin: var(--s6) 0;
+}
+.latest-head{ display:flex; align-items:center; gap:.5em; margin-bottom: var(--s3); }
+.pulse-dot{
+  width:8px; height:8px; border-radius:50%; background: var(--breaking);
+  position: relative; flex-shrink:0;
+}
+.pulse-dot::after{
+  content:""; position:absolute; inset:-4px; border-radius:50%;
+  border: 1.5px solid var(--breaking); animation: pulse 1.8s ease-out infinite;
+}
+@keyframes pulse{ 0%{ transform:scale(.5); opacity:1;} 100%{ transform:scale(1.8); opacity:0;} }
+.latest-head span{ font-family: var(--font-sans); font-weight:800; font-size:.74rem; letter-spacing:.14em; text-transform:uppercase; }
+.latest ul{ display:flex; flex-direction:column; gap: var(--s2); }
+.latest li{
+  display:flex; gap: var(--s3); align-items:baseline;
+  font-family: var(--font-sans); font-size: .88rem;
+  padding: var(--s2) 0; border-top: 1px solid var(--rule-soft);
+}
+.latest li:first-child{ border-top: none; }
+.latest li a{ color: var(--ink-soft); }
+.latest li a:hover{ color: var(--accent); text-decoration: underline; }
+.latest time{ color: var(--muted-2); font-size:.76rem; flex-shrink:0; min-width: 68px; }
+
+/* ============================== LEAD GRID ============================== */
+.lead-grid{ display:grid; grid-template-columns: 1.85fr 1fr; gap: var(--s7); padding: var(--s6) 0; }
+.lead-story .thumb-svg{ aspect-ratio: 16/9; margin-bottom: var(--s4); }
+.lead-story .hed{ font-size: clamp(1.7rem, 3vw, 2.6rem); margin-bottom: var(--s3); }
+.lead-story .deck{ font-size: 1.08rem; }
+.side-col{ border-left: 1px solid var(--rule); padding-left: var(--s6); }
+.side-col .story:first-child{ margin-top:0; padding-top:0; border-top:none; }
+.side-story .hed{ font-size: 1.15rem; }
+.side-story .deck{ font-size: .88rem; }
+
+.most-read{ margin-top: var(--s6); padding-top: var(--s5); border-top: 3px solid var(--ink); }
+.most-read h3{ font-family: var(--font-sans); font-weight:800; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; margin-bottom: var(--s4); }
+.most-read ol{ display:flex; flex-direction:column; gap: var(--s3); counter-reset: mr; }
+.most-read li{ display:flex; gap: var(--s3); align-items:flex-start; counter-increment: mr; }
+.most-read li::before{
+  content: counter(mr);
+  font-family: var(--font-serif); font-weight:700; font-size:1.5rem; color: var(--rule);
+  line-height:1; width: 1.1em; flex-shrink:0;
+  -webkit-text-stroke: 1px var(--ink); color: transparent;
+}
+.most-read a{ font-family: var(--font-serif); font-size: .96rem; font-weight:700; line-height:1.3; }
+.most-read a:hover{ color: var(--accent); }
+
+@media (max-width: 900px){
+  .lead-grid{ grid-template-columns: 1fr; gap: var(--s6); }
+  .side-col{ border-left:none; padding-left:0; border-top: 3px solid var(--ink); padding-top: var(--s5); }
+}
+
+/* ============================== SECTION BLOCKS / GRID CARDS ============================== */
+.section-block{ padding: var(--s7) 0; border-top: 1px solid var(--rule); }
+.cards-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+.cards-grid .story{ padding: 0 var(--s5); border-top:none; margin-top:0; border-left: 1px solid var(--rule); }
+.cards-grid .story:first-child{ border-left:none; padding-left:0; }
+.cards-grid .story:last-child{ padding-right:0; }
+.cards-grid .hed{ font-size: 1.08rem; margin-bottom: var(--s2); }
+.cards-grid .deck{ font-size: .84rem; }
+
+@media (max-width: 900px){
+  .cards-grid{ grid-template-columns: 1fr 1fr; row-gap: var(--s6); }
+  .cards-grid .story{ border-left:none; padding:0; border-top: 1px solid var(--rule-soft); padding-top: var(--s5); margin-top: 0; }
+  .cards-grid .story:nth-child(2n+1){ padding-right: var(--s4); }
+  .cards-grid .story:nth-child(2n){ padding-left: var(--s4); }
+}
+@media (max-width: 600px){
+  .cards-grid{ grid-template-columns: 1fr; }
+  .cards-grid .story{ padding:0 !important; }
+}
+
+/* trials tracker table */
+.tracker{ margin-top: var(--s6); border: 1px solid var(--rule); }
+.tracker-label{
+  background: var(--ink); color: var(--paper); font-family: var(--font-sans);
+  font-size:.72rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase;
+  padding: var(--s3) var(--s4);
+}
+.tracker table{ font-family: var(--font-sans); font-size: .82rem; }
+.tracker th{
+  text-align:left; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase;
+  color: var(--muted); font-weight:700; padding: var(--s3) var(--s4);
+  border-bottom: 2px solid var(--ink); background: var(--card);
+}
+.tracker td{ padding: var(--s3) var(--s4); border-bottom: 1px solid var(--rule-soft); color: var(--ink-soft); }
+.tracker tr:last-child td{ border-bottom:none; }
+.status-pill{
+  display:inline-block; padding:.18em .6em; border-radius: 2px;
+  font-size:.68rem; font-weight:700; letter-spacing:.03em; white-space:nowrap;
+}
+.status-enrolling{ background: var(--accent-tint-2); color: var(--accent-ink); }
+.status-active{ background: #f1efe8; color: var(--ink-soft); }
+.status-pending{ background: var(--breaking-tint); color: var(--breaking); }
+.tracker-scroll{ overflow-x:auto; }
+
+/* ============================== MUSE FLAGSHIP BAND ============================== */
+.muse-band{
+  background: repeating-linear-gradient(135deg, var(--accent-tint) 0px, var(--accent-tint) 1px, transparent 1px, transparent 22px), var(--card);
+  border-top: 4px solid var(--accent); border-bottom: 4px solid var(--accent);
+  padding: var(--s7) 0;
+}
+.muse-band .standing-label{ border-bottom-color: var(--accent); }
+.muse-band .standing-label h2{ color: var(--accent-ink); }
+.muse-lead{ display:grid; grid-template-columns: 1.4fr 1fr; gap: var(--s7); margin-bottom: var(--s7); }
+.muse-lead .hed{ font-size: clamp(1.5rem, 2.6vw, 2.1rem); }
+.explainer-box{
+  background: var(--card); border: 1px solid var(--accent); border-left: 5px solid var(--accent);
+  padding: var(--s5); align-self:start;
+}
+.explainer-box .kicker{ margin-bottom:.6em; }
+.explainer-box h3{ font-family: var(--font-serif); font-size: 1.2rem; margin-bottom: var(--s3); }
+.explainer-box p{ font-family: var(--font-sans); font-size:.86rem; color: var(--ink-soft); margin-bottom: var(--s3); }
+.explainer-box ul{ display:flex; flex-direction:column; gap: var(--s2); }
+.explainer-box li{ font-family: var(--font-sans); font-size:.82rem; color: var(--ink-soft); padding-left: 1.1em; position:relative; }
+.explainer-box li::before{ content:"—"; position:absolute; left:0; color: var(--accent); }
+.muse-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: var(--s6); }
+.muse-grid .story{ background: var(--card); border: 1px solid var(--rule); padding: var(--s5); margin:0; transition: box-shadow .18s, transform .18s; }
+.muse-grid .story:hover{ box-shadow: 0 8px 24px rgba(15,92,99,.12); transform: translateY(-2px); }
+.muse-grid .hed{ font-size: 1.05rem; }
+.muse-grid .deck{ font-size:.83rem; }
+@media (max-width: 900px){ .muse-lead{ grid-template-columns: 1fr; } .muse-grid{ grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px){ .muse-grid{ grid-template-columns: 1fr; } }
+
+/* ============================== PODCAST STRIP ============================== */
+.podcast-strip{ padding: var(--s7) 0; border-top: 1px solid var(--rule); }
+.player-card{
+  display:grid; grid-template-columns: 132px 1fr; gap: var(--s5);
+  background: var(--ink); color: var(--paper); padding: var(--s5); align-items:center;
+}
+.player-cover{ width:132px; height:132px; border-radius:3px; overflow:hidden; flex-shrink:0; box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+.player-meta .eyebrow{ font-family: var(--font-sans); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:#9fd6da; margin-bottom:.4em; }
+.player-meta h3{ font-family: var(--font-serif); font-size: 1.35rem; margin-bottom: var(--s1); }
+.player-meta .ep-desc{ font-family: var(--font-sans); font-size:.82rem; color:#cdc9bd; margin-bottom: var(--s4); }
+.player-controls{ display:flex; align-items:center; gap: var(--s4); }
+.play-btn{
+  width:44px; height:44px; border-radius:50%; background: var(--paper); color: var(--ink);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  transition: transform .15s;
+}
+.play-btn:hover{ transform: scale(1.06); }
+.play-btn svg{ width:16px; height:16px; margin-left: 2px; }
+.player-card.playing .play-btn svg{ margin-left:0; }
+.scrub{ flex:1; }
+.scrub-track{ height:4px; background: rgba(255,255,255,.22); border-radius:2px; position:relative; overflow:hidden; }
+.scrub-fill{ position:absolute; left:0; top:0; bottom:0; width:8%; background: var(--paper); transition: width .3s linear; }
+.player-card.playing .scrub-fill{ width:100%; transition: width 32s linear; }
+.scrub-time{ display:flex; justify-content:space-between; font-family: var(--font-sans); font-size:.68rem; color:#a9a498; margin-top: var(--s1); }
+
+.episode-list{ margin-top: var(--s6); }
+.episode-row{
+  display:grid; grid-template-columns: 2.4em 1fr auto auto; gap: var(--s4); align-items:center;
+  padding: var(--s4) 0; border-top: 1px solid var(--rule-soft);
+}
+.episode-row:first-child{ border-top: 1px solid var(--rule); }
+.ep-num{ font-family: var(--font-serif); font-size:1.3rem; color: var(--muted-2); }
+.ep-title{ font-family: var(--font-sans); font-weight:700; font-size:.92rem; color: var(--ink); }
+.ep-guest{ font-family: var(--font-sans); font-size:.78rem; color: var(--muted); margin-top:.15em; }
+.ep-duration{ font-family: var(--font-sans); font-size:.78rem; color: var(--muted); white-space:nowrap; }
+.ep-play{
+  width:32px; height:32px; border-radius:50%; border: 1.5px solid var(--ink); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; transition: background .15s, color .15s;
+}
+.ep-play:hover{ background: var(--ink); color: var(--paper); }
+.ep-play svg{ width:10px; height:10px; margin-left:1px; }
+
+.listen-on{ display:flex; flex-wrap:wrap; gap: var(--s3); margin-top: var(--s6); }
+.listen-btn{
+  display:flex; align-items:center; gap:.5em; border: 1.5px solid var(--ink); padding: var(--s2) var(--s4);
+  font-family: var(--font-sans); font-size:.8rem; font-weight:700; transition: background .15s, color .15s;
+}
+.listen-btn:hover{ background: var(--ink); color: var(--paper); }
+.listen-btn svg{ width:16px; height:16px; }
+
+/* ============================== SOCIAL EMBEDS ============================== */
+.social-block{ padding: var(--s7) 0; border-top: 1px solid var(--rule); }
+.social-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); }
+.social-card{ border: 1px solid var(--rule); background: var(--card); padding: var(--s5); position:relative; }
+.social-plat{ position:absolute; top: var(--s4); right: var(--s4); width:18px; height:18px; color: var(--muted-2); }
+.social-head{ display:flex; align-items:center; gap: var(--s3); margin-bottom: var(--s3); }
+.avatar{ width:38px; height:38px; border-radius:50%; flex-shrink:0; }
+.social-name{ font-family: var(--font-sans); font-weight:700; font-size:.86rem; }
+.social-handle{ font-family: var(--font-sans); font-size:.76rem; color: var(--muted); }
+.social-text{ font-family: var(--font-sans); font-size:.88rem; color: var(--ink-soft); line-height:1.5; margin-bottom: var(--s4); }
+.social-eng{ display:flex; gap: var(--s5); font-family: var(--font-sans); font-size:.76rem; color: var(--muted); }
+.social-eng span{ display:flex; align-items:center; gap:.35em; }
+.social-eng svg{ width:14px; height:14px; }
+@media (max-width: 900px){ .social-grid{ grid-template-columns: 1fr; } }
+
+/* ============================== NEWSLETTER ============================== */
+.newsletter{ background: var(--ink); color: var(--paper); padding: var(--s8) 0; margin-top: var(--s7); text-align:center; }
+.newsletter h2{ font-family: var(--font-serif); font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom: var(--s2); }
+.newsletter p{ font-family: var(--font-sans); color:#cdc9bd; font-size:.92rem; max-width: 460px; margin: 0 auto var(--s5); }
+.nl-form{ display:flex; justify-content:center; gap: var(--s3); max-width: 460px; margin: 0 auto; flex-wrap:wrap; }
+.nl-form input{ flex:1; min-width:220px; padding: var(--s3) var(--s4); border: 1.5px solid #55503f; background: #24221b; color: var(--paper); font-family: var(--font-sans); font-size:.9rem; }
+.nl-form input::placeholder{ color:#8a8577; }
+.nl-form input:focus{ outline: none; border-color: #9fd6da; }
+.nl-form button{ background: var(--accent); color:#fff; padding: var(--s3) var(--s5); font-weight:700; font-size:.85rem; letter-spacing:.02em; transition: background .15s; white-space:nowrap; }
+.nl-form button:hover{ background: #12707a; }
+.nl-fine{ font-family: var(--font-sans); font-size:.7rem; color:#8a8577; margin-top: var(--s3); }
+
+/* ============================== FOOTER ============================== */
+footer{ background: var(--paper); border-top: 4px solid var(--ink); padding-top: var(--s7); }
+.footer-grid{ display:grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: var(--s6); padding-bottom: var(--s7); }
+.footer-brand .wordmark{ justify-content:flex-start; margin-bottom: var(--s3); }
+.footer-brand .wordmark svg{ width:26px; height:26px; }
+.footer-brand .wordmark h1{ font-size: 1.3rem; }
+.footer-desc{ font-family: var(--font-sans); font-size:.8rem; color: var(--muted); max-width: 30ch; line-height:1.6; }
+.footer-col h4{ font-family: var(--font-sans); font-size:.72rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color: var(--ink-soft); margin-bottom: var(--s4); }
+.footer-col ul{ display:flex; flex-direction:column; gap: var(--s3); }
+.footer-col a{ font-family: var(--font-sans); font-size:.84rem; color: var(--muted); }
+.footer-col a:hover{ color: var(--accent); }
+@media (max-width: 800px){ .footer-grid{ grid-template-columns: 1fr 1fr; } }
+
+.footer-legal{ border-top: 1px solid var(--rule); padding: var(--s6) 0; }
+.legal-box{ font-family: var(--font-sans); font-size:.78rem; color: var(--ink-soft); line-height:1.6; margin-bottom: var(--s4); max-width: 900px; }
+.legal-box strong{ color: var(--ink); }
+.sponsor-line{
+  font-family: var(--font-sans); font-size:.76rem; color: var(--muted); font-style: italic;
+  border-top: 1px dashed var(--rule); padding-top: var(--s4); margin-top: var(--s4); max-width: 900px;
+}
+.footer-bottom{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap: var(--s3); padding: var(--s5) 0; border-top: 1px solid var(--rule); font-family: var(--font-sans); font-size:.74rem; color: var(--muted-2); }
+.footer-bottom nav{ display:flex; gap: var(--s5); }
+.footer-bottom a:hover{ color: var(--accent); }
+
+/* ============================== ARTICLE PAGE ============================== */
+.article-wrap{ max-width: 760px; margin: 0 auto; padding: var(--s7) var(--s5); }
+.back-link{ display:flex; width:fit-content; align-items:center; gap:.4em; font-family: var(--font-sans); font-size:.82rem; font-weight:700; color: var(--accent); margin-bottom: var(--s6); }
+.back-link:hover{ text-decoration: underline; }
+.article-hed{ font-family: var(--font-serif); font-size: clamp(1.9rem, 4vw, 2.9rem); line-height:1.08; letter-spacing:-.01em; margin-bottom: var(--s4); }
+.article-deck{ font-family: var(--font-sans); font-size: 1.15rem; color: var(--ink-soft); line-height:1.5; margin-bottom: var(--s5); }
+.article-byline{ display:flex; align-items:center; gap: var(--s3); font-family: var(--font-sans); font-size:.82rem; color: var(--muted); padding: var(--s4) 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-bottom: var(--s6); }
+.article-byline .av{ width:34px; height:34px; border-radius:50%; flex-shrink:0; }
+.article-hero{ margin-bottom: var(--s6); }
+.article-hero .thumb-svg{ aspect-ratio: 16/9; }
+.article-body{ font-family: var(--font-serif); font-size: 1.15rem; line-height: 1.75; color: var(--ink-soft); }
+.article-body p{ margin-bottom: var(--s5); }
+.article-body p:first-of-type::first-letter{
+  font-family: var(--font-serif); font-size: 3.6em; font-weight:700; float:left; line-height:.82;
+  padding-right:.08em; padding-top:.05em; color: var(--ink);
+}
+.article-body h3{ font-family: var(--font-sans); font-size:.85rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color: var(--accent); margin: var(--s7) 0 var(--s4); }
+.pull-quote{
+  font-family: var(--font-serif); font-style: italic; font-size: 1.5rem; line-height:1.4; color: var(--ink);
+  border-left: 4px solid var(--accent); padding: var(--s2) 0 var(--s2) var(--s5); margin: var(--s6) 0;
+}
+.pull-quote cite{ display:block; font-family: var(--font-sans); font-style:normal; font-size:.75rem; color: var(--muted); margin-top: var(--s3); }
+
+.source-module{ background: var(--card); border: 1px solid var(--rule); padding: var(--s5); margin: var(--s7) 0; }
+.source-module .kicker{ margin-bottom: var(--s3); }
+.source-module p{ font-family: var(--font-sans); font-size:.86rem; color: var(--ink-soft); line-height:1.6; margin-bottom: var(--s3); }
+.source-module p:last-child{ margin-bottom:0; }
+.source-module a{ color: var(--accent); font-weight:700; }
+.source-module a:hover{ text-decoration:underline; }
+
+.share-row{ display:flex; align-items:center; gap: var(--s4); padding: var(--s5) 0; margin: var(--s6) 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.share-row span{ font-family: var(--font-sans); font-size:.76rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color: var(--muted); }
+.share-icons{ display:flex; gap: var(--s3); }
+.share-icons a{ width:32px; height:32px; border:1.5px solid var(--rule); border-radius:50%; display:flex; align-items:center; justify-content:center; color: var(--ink-soft); transition: border-color .15s, color .15s; }
+.share-icons a:hover{ border-color: var(--accent); color: var(--accent); }
+.share-icons svg{ width:14px; height:14px; }
+
+.author-bio{ display:flex; gap: var(--s4); align-items:flex-start; background: var(--card); border: 1px solid var(--rule); padding: var(--s5); margin-bottom: var(--s7); }
+.author-bio .av{ width:56px; height:56px; border-radius:50%; flex-shrink:0; }
+.author-bio h4{ font-family: var(--font-sans); font-weight:800; font-size:.95rem; margin-bottom: var(--s2); }
+.author-bio p{ font-family: var(--font-sans); font-size:.82rem; color: var(--muted); line-height:1.6; }
+
+.related-head{ font-family: var(--font-sans); font-size:.78rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; border-bottom: 3px solid var(--ink); padding-bottom: var(--s2); margin-bottom: var(--s5); }
+.related-grid{ display:grid; grid-template-columns: repeat(3,1fr); gap: var(--s5); margin-bottom: var(--s8); }
+.related-grid .hed{ font-size:.98rem; }
+.related-grid .deck{ font-size:.8rem; }
+@media (max-width: 700px){ .related-grid{ grid-template-columns: 1fr; } .article-wrap{ padding: var(--s6) var(--s4); } }
+
+/* ============================== SECTION PAGE (MUSE) ============================== */
+.section-page-head{ padding: var(--s7) 0 var(--s6); border-bottom: 4px solid var(--accent); text-align:center; }
+.section-page-head .kicker{ font-size:.76rem; }
+.section-page-head h1{ font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3rem); margin-bottom: var(--s4); }
+.section-page-head p{ font-family: var(--font-sans); font-size: 1rem; color: var(--ink-soft); max-width: 640px; margin: 0 auto; line-height:1.6; }
+
+.section-lead{ display:grid; grid-template-columns: 1.6fr 1fr; gap: var(--s7); padding: var(--s7) 0; border-bottom: 1px solid var(--rule); }
+.section-lead .hed{ font-size: clamp(1.6rem, 3vw, 2.3rem); }
+@media (max-width: 900px){ .section-lead{ grid-template-columns:1fr; } }
+
+/* ============================== PODCAST PAGE ============================== */
+.podcast-hero{ display:grid; grid-template-columns: 280px 1fr; gap: var(--s7); padding: var(--s7) 0; align-items:center; }
+.podcast-hero .cover-lg{ width:100%; aspect-ratio:1; box-shadow: 0 16px 40px rgba(26,26,26,.18); }
+.podcast-hero h1{ font-family: var(--font-serif); font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: var(--s3); }
+.podcast-hero p{ font-family: var(--font-sans); color: var(--ink-soft); font-size:.98rem; line-height:1.6; margin-bottom: var(--s5); max-width: 60ch; }
+@media (max-width: 800px){ .podcast-hero{ grid-template-columns:1fr; text-align:center; } .podcast-hero .cover-lg{ max-width:220px; margin:0 auto; } .podcast-hero p{ margin-left:auto; margin-right:auto; } }
+
+/* ============================== PITCH RIBBON ============================== */
+.pitch-ribbon{
+  position: fixed; bottom: 16px; right: 16px; z-index: 3000;
+  background: var(--ink); color: var(--paper);
+  font-family: var(--font-sans); font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  padding: .55em .8em; border-radius: 3px; opacity:.82;
+  display:flex; align-items:center; gap: .6em;
+  box-shadow: 0 4px 16px rgba(0,0,0,.25);
+  transition: opacity .2s, transform .2s;
+}
+.pitch-ribbon:hover{ opacity:1; }
+.pitch-ribbon button{ opacity:.7; line-height:1; font-size: 1rem; }
+.pitch-ribbon button:hover{ opacity:1; }
+.pitch-ribbon.dismissed{ opacity:0; transform: translateY(12px); pointer-events:none; }
+
+/* ============================== MISC ============================== */
+.mono-tag{ font-family: var(--font-sans); font-size:.68rem; color: var(--muted-2); letter-spacing:.04em; }
+::selection{ background: var(--accent-tint-2); color: var(--ink); }
+</style>
+</head>
+<body>
+
+<!-- ============================== ICON SPRITE ============================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><line x1="20" y1="20" x2="15.3" y2="15.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M4 4l16 16M20 4L4 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-linkedin" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="8.2" r="1.3" fill="currentColor"/><line x1="8" y1="11" x2="8" y2="17" stroke="currentColor" stroke-width="1.6"/><path d="M12 17v-3.6c0-1.7 1.1-2.6 2.4-2.6 1.3 0 2.1.9 2.1 2.6V17" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+<symbol id="i-youtube" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.5 9.6l5 2.4-5 2.4z" fill="currentColor"/></symbol>
+<symbol id="i-rss" viewBox="0 0 24 24"><circle cx="6" cy="18" r="1.8" fill="currentColor"/><path d="M4 11a9 9 0 0 1 9 9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 5a15 15 0 0 1 15 15" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+<symbol id="i-apple" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="10.3" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 19l1.4-4.6h3.2L15 19" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+<symbol id="i-spotify" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7 10.2c3-.9 7-.6 9.6.9M7.4 13.2c2.6-.7 5.8-.5 8 .8M7.8 16c2-.5 4.6-.4 6.3.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M6 4.5v15l14-7.5z" fill="currentColor"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4.5" width="4" height="15" fill="currentColor"/><rect x="14" y="4.5" width="4" height="15" fill="currentColor"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 6.5l8 6.5 8-6.5" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M9 15l6-6M10 6l1.2-1.2a4 4 0 0 1 5.6 5.6L15.5 11.7M14 18l-1.2 1.2a4 4 0 0 1-5.6-5.6L8.5 12.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-9.3-9.3C1.6 7.2 4 4 7.3 4c2 0 3.5 1.1 4.7 2.9C13.2 5.1 14.7 4 16.7 4c3.3 0 5.7 3.2 4.6 6.7C19.5 15.4 12 20 12 20z" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+<symbol id="i-reply" viewBox="0 0 24 24"><path d="M20 12a7 7 0 0 1-7 7H8l-4 3 .5-4.4A7 7 0 1 1 20 12z" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+<symbol id="i-repost" viewBox="0 0 24 24"><path d="M6 8h9a3 3 0 0 1 3 3v2M18 16H9a3 3 0 0 1-3-3v-2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8.5 5.5L6 8l2.5 2.5M15.5 18.5L18 16l-2.5-2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<!-- Regenera monoline node-cluster mark -->
+<symbol id="logo-mark" viewBox="0 0 44 44">
+  <circle cx="14" cy="16" r="7.4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+  <circle cx="30.5" cy="13.5" r="5" fill="none" stroke="currentColor" stroke-width="1.4"/>
+  <circle cx="24" cy="31" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/>
+  <line x1="19.5" y1="17.5" x2="26.2" y2="15" stroke="currentColor" stroke-width="1.1"/>
+  <line x1="16.5" y1="22" x2="20.3" y2="26.5" stroke="currentColor" stroke-width="1.1"/>
+  <line x1="27.5" y1="17.5" x2="25.5" y2="25.7" stroke="currentColor" stroke-width="1.1"/>
+  <circle cx="14" cy="16" r="1.5" fill="currentColor"/>
+  <circle cx="30.5" cy="13.5" r="1.2" fill="currentColor"/>
+  <circle cx="24" cy="31" r="1.3" fill="currentColor"/>
+</symbol>
+</defs>
+</svg>
+
+<!-- ============================== UTILITY BAR ============================== -->
+<div class="utility-bar">
+  <div class="wrap">
+    <div class="utility-left">
+      <span id="today-date">Sunday, July 19, 2026</span>
+      <a href="#home" data-route="home">Subscribe to the Briefing</a>
+      <a href="#podcast" data-route="podcast">Listen to the Podcast</a>
+    </div>
+    <div class="utility-right">
+      <button class="icon-btn" aria-label="Search" onclick="return false;"><svg viewBox="0 0 24 24" width="15" height="15"><use href="#i-search"/></svg></button>
+      <div class="social-icons">
+        <a href="#home" aria-label="Regenera on X" class="icon-btn" onclick="return false;"><svg viewBox="0 0 24 24" width="14" height="14"><use href="#i-x"/></svg></a>
+        <a href="#home" aria-label="Regenera on LinkedIn" class="icon-btn" onclick="return false;"><svg viewBox="0 0 24 24" width="14" height="14"><use href="#i-linkedin"/></svg></a>
+        <a href="#home" aria-label="Regenera on YouTube" class="icon-btn" onclick="return false;"><svg viewBox="0 0 24 24" width="15" height="15"><use href="#i-youtube"/></svg></a>
+        <a href="#home" aria-label="Regenera RSS feed" class="icon-btn" onclick="return false;"><svg viewBox="0 0 24 24" width="14" height="14"><use href="#i-rss"/></svg></a>
+        <a href="#podcast" aria-label="Regenera on Apple Podcasts" class="icon-btn" data-route="podcast"><svg viewBox="0 0 24 24" width="14" height="14"><use href="#i-apple"/></svg></a>
+        <a href="#podcast" aria-label="Regenera on Spotify" class="icon-btn" data-route="podcast"><svg viewBox="0 0 24 24" width="14" height="14"><use href="#i-spotify"/></svg></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== MASTHEAD ============================== -->
+<header class="masthead">
+  <hr class="hr-thick">
+  <div class="wrap masthead-inner">
+    <a href="#home" data-route="home" class="wordmark" aria-label="Regenera Newswire — Home">
+      <svg viewBox="0 0 44 44"><use href="#logo-mark"/></svg>
+      <h1>Regenera Newswire</h1>
+    </a>
+    <p class="tagline">Independent reporting on stem cell, MUSE, and regenerative medicine.</p>
+  </div>
+  <div class="dateline-bar">
+    <div class="wrap">
+      <span>Vol. 1, No. 214</span>
+      <span class="dl-center">Sunday, July 19, 2026 · Today's Briefing</span>
+      <span>New England Edition</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================== STICKY SECTION NAV ============================== -->
+<nav class="section-nav" aria-label="Primary sections">
+  <div class="wrap">
+    <ul>
+      <li><a href="#home" data-route="home">Home</a></li>
+      <li><a href="#research-section" data-route="research-section">Research</a></li>
+      <li><a href="#trials-section" data-route="trials-section">Clinical Trials</a></li>
+      <li><a href="#muse" data-route="muse">MUSE Cells</a></li>
+      <li><a href="#patient-section" data-route="patient-section">Patient Guide</a></li>
+      <li><a href="#policy-section" data-route="policy-section">Policy &amp; FDA</a></li>
+      <li><a href="#business-section" data-route="business-section">Business</a></li>
+      <li><a href="#podcast" data-route="podcast">Podcast</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+
+<!-- ==========================================================================
+     PAGE: HOME
+     ========================================================================== -->
+<section id="page-home" class="page active">
+<div class="wrap">
+
+  <!-- LATEST RIVER -->
+  <div class="latest">
+    <div class="latest-head"><span class="pulse-dot"></span><span>Latest</span></div>
+    <ul>
+      <li><time>12 min ago</time><span class="pill-breaking" style="margin-right:.6em;">Breaking</span><a href="#article" data-route="article">FDA posts updated Q&amp;A on expanded access for investigational cell therapies</a></li>
+      <li><time>41 min ago</time><a href="#article" data-route="article">ISSCR opens registration for 2026 annual meeting, adds dedicated cell-therapy track</a></li>
+      <li><time>1 hr ago</time><a href="#article" data-route="article">Trial update: cardiac progenitor Phase I trial completes enrollment ahead of schedule</a></li>
+      <li><time>2 hr ago</time><a href="#article" data-route="article">Editor's note: today's MUSE coverage is free to read, no registration required</a></li>
+      <li><time>3 hr ago</time><a href="#article" data-route="article">Regulatory desk: EU advances single-market framework for advanced cell therapies</a></li>
+      <li><time>5 hr ago</time><a href="#article" data-route="article">Correction appended to our July 16 report on MSC-derived exosome cartilage study</a></li>
+    </ul>
+  </div>
+
+  <!-- LEAD GRID -->
+  <div class="lead-grid">
+    <article class="lead-story">
+      <a href="#article" data-route="article" class="hed-link">
+        <div class="thumb-svg">
+          <svg viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+            <rect width="640" height="360" fill="#eef0e9"/>
+            <g stroke="#0f5c63" stroke-width="1" opacity=".35">
+              <line x1="0" y1="60" x2="640" y2="60"/><line x1="0" y1="120" x2="640" y2="120"/>
+              <line x1="0" y1="180" x2="640" y2="180"/><line x1="0" y1="240" x2="640" y2="240"/>
+              <line x1="0" y1="300" x2="640" y2="300"/>
+            </g>
+            <circle cx="230" cy="170" r="70" fill="none" stroke="#1a1a1a" stroke-width="1.4"/>
+            <circle cx="380" cy="130" r="46" fill="none" stroke="#0f5c63" stroke-width="1.6"/>
+            <circle cx="360" cy="250" r="58" fill="none" stroke="#1a1a1a" stroke-width="1.4"/>
+            <line x1="290" y1="150" x2="345" y2="140" stroke="#1a1a1a" stroke-width="1"/>
+            <line x1="270" y1="210" x2="330" y2="235" stroke="#1a1a1a" stroke-width="1"/>
+            <line x1="400" y1="170" x2="380" y2="205" stroke="#0f5c63" stroke-width="1"/>
+            <circle cx="230" cy="170" r="4" fill="#1a1a1a"/><circle cx="380" cy="130" r="3.4" fill="#0f5c63"/><circle cx="360" cy="250" r="3.8" fill="#1a1a1a"/>
+          </svg>
+        </div>
+      </a>
+      <div class="thumb-cap">Illustration: peri-infarct homing pattern observed in MRI substudy imaging. Credit: Regenera Graphics.</div>
+      <div style="margin-top: var(--s4);">
+        <span class="kicker">Stroke Recovery · MUSE Cells</span>
+        <a href="#article" data-route="article" class="hed-link"><h2 class="hed">MUSE Cell Infusion Linked to Improved Motor Function at 12 Weeks in Subacute Stroke Cohort</h2></a>
+        <p class="deck" style="margin-top:.6em;">In a Phase II cohort of 58 patients treated 10–30 days after ischemic stroke, a single intravenous dose of MUSE cells was associated with meaningful gains on standardized motor scales — though researchers caution the study was not designed to prove efficacy.</p>
+        <p class="byline">By <b>Elena Ruiz, PhD</b><span class="dot">·</span>Boston, Mass.<span class="dot">·</span>4 hours ago<span class="dot">·</span>6 min read</p>
+      </div>
+    </article>
+
+    <div class="side-col">
+      <article class="story side-story">
+        <span class="kicker">Cardiology · Muse Cells</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">CL2020 Shows Signal of Reduced Infarct Size in Post-AMI Patients, Phase II Update Finds</h3></a>
+        <p class="deck">Investigators presented interim imaging data suggesting smaller scar burden at 90 days among treated patients versus standard-of-care controls.</p>
+        <p class="byline">By <b>Marcus Ohene, MD, PhD</b><span class="dot">·</span>7 hours ago</p>
+      </article>
+      <article class="story side-story">
+        <span class="kicker">Policy &amp; FDA</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">FDA Finalizes Updated Guidance on Minimal Manipulation Standards for Cell Therapies</h3></a>
+        <p class="deck">The revised framework clarifies which processing steps keep a cell product under the lighter-touch Section 361 pathway.</p>
+        <p class="byline">By <b>Grace Whitfield, JD</b><span class="dot">·</span>Today</p>
+      </article>
+
+      <div class="most-read">
+        <h3>Most Read</h3>
+        <ol>
+          <li><a href="#article" data-route="article">Ten Questions to Ask Before You Book a Stem Cell Procedure</a></li>
+          <li><a href="#article" data-route="article">Why MUSE Cells Don't Form Tumors: New Data on Pluripotency Gene Silencing</a></li>
+          <li><a href="#article" data-route="article">FDA 361 vs. 351: What the Difference Means for Your Safety</a></li>
+          <li><a href="#article" data-route="article">MUSE Cell Infusion Linked to Improved Motor Function in Stroke Cohort</a></li>
+          <li><a href="#article" data-route="article">How to Spot a Clinic That's Overpromising</a></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================== RESEARCH ============================== -->
+  <section class="section-block" id="research-section">
+    <div class="standing-label"><h2>Research</h2><a href="#research-section" class="see-all">More Research Coverage ›</a></div>
+    <div class="cards-grid">
+      <article class="story">
+        <span class="kicker">Stem Cell Biology</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Reprogrammed iPSC Lines Show Reduced Tumorigenic Risk After Novel Epigenetic Reset Protocol</h3></a>
+        <p class="deck">A three-lab consortium reports a chemical reprogramming step that clears residual pluripotency markers linked to teratoma formation in preclinical models.</p>
+        <p class="byline">By <b>Naomi Falk, PhD</b><span class="dot">·</span>3 hr ago</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Exosomes</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">MSC-Derived Exosomes Cut Inflammatory Markers in Early Cartilage Repair Study</h3></a>
+        <p class="deck">Small pilot data suggest paracrine signaling — not cell engraftment — may drive much of the observed joint benefit.</p>
+        <p class="byline">By <b>Devon Okafor, PhD</b><span class="dot">·</span>Jul 18</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Organoids</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Vascularized Liver Organoids Survive Longer in New Perfusion Bioreactor Design</h3></a>
+        <p class="deck">Continuous-flow culture extended functional viability past 60 days, a benchmark for future drug-toxicity screening platforms.</p>
+        <p class="byline">By <b>Naomi Falk, PhD</b><span class="dot">·</span>Jul 17</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Molecular Biology</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Single-Cell Atlas Maps Stress-Response Pathway Shared by MUSE and Mesenchymal Populations</h3></a>
+        <p class="deck">A shared SSEA-3 and stress-survival signature may help explain how both cell types persist and home after systemic delivery.</p>
+        <p class="byline">By <b>Elena Ruiz, PhD</b><span class="dot">·</span>Jul 16</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================== CLINICAL TRIALS ============================== -->
+  <section class="section-block" id="trials-section">
+    <div class="standing-label"><h2>Clinical Trials</h2><a href="#trials-section" class="see-all">Full Trials Tracker ›</a></div>
+    <div class="cards-grid">
+      <article class="story">
+        <span class="kicker">Trial Results</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Phase II Data: Allogeneic MSC Infusion Shows Modest Benefit in Treatment-Resistant Crohn's Fistula</h3></a>
+        <p class="deck">Fistula closure rates edged above placebo at 24 weeks, investigators reported, with a favorable tolerability profile.</p>
+        <p class="byline">By <b>Priya Anand, MD</b><span class="dot">·</span>5 hr ago</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Trial Design</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Adaptive Platform Trial for Spinal Cord Injury Cell Therapies Opens Enrollment Across 12 Sites</h3></a>
+        <p class="deck">The shared-control design lets multiple sponsors test candidate therapies simultaneously, aiming to cut years off traditional timelines.</p>
+        <p class="byline">By <b>Marcus Ohene, MD, PhD</b><span class="dot">·</span>Jul 18</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Safety</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">DSMB Clears Continued Dosing in Cardiac Progenitor Trial After Second Interim Review</h3></a>
+        <p class="deck">No unexpected serious adverse events were reported through the second planned safety checkpoint, the sponsor said.</p>
+        <p class="byline">By <b>Priya Anand, MD</b><span class="dot">·</span>Jul 15</p>
+      </article>
+    </div>
+
+    <div class="tracker">
+      <div class="tracker-label">Trials Tracker — Selected Active Programs</div>
+      <div class="tracker-scroll">
+      <table>
+        <thead><tr><th>Therapy</th><th>Indication</th><th>Phase</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>CL2020 (MUSE)</td><td>Acute Myocardial Infarction</td><td>Phase III</td><td><span class="status-pill status-enrolling">Enrolling</span></td></tr>
+          <tr><td>CL2020 (MUSE)</td><td>Ischemic Stroke</td><td>Phase II</td><td><span class="status-pill status-active">Active, Not Recruiting</span></td></tr>
+          <tr><td>Allogeneic MSC-EXO</td><td>Knee Osteoarthritis</td><td>Phase I/II</td><td><span class="status-pill status-enrolling">Enrolling</span></td></tr>
+          <tr><td>iPSC-CM Patch</td><td>Heart Failure (NYHA III)</td><td>Phase I</td><td><span class="status-pill status-enrolling">Enrolling</span></td></tr>
+          <tr><td>AD-MSC</td><td>Epidermolysis Bullosa</td><td>Phase II</td><td><span class="status-pill status-active">Follow-Up</span></td></tr>
+          <tr><td>Cord-Blood MNC</td><td>ALS</td><td>Phase II</td><td><span class="status-pill status-pending">Data Pending</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== MUSE FLAGSHIP BAND ============================== -->
+  <section class="muse-band" id="muse-band">
+    <div class="wrap">
+      <div class="standing-label">
+        <h2><a href="#muse" data-route="muse" style="color:inherit;">Muse Cells — Flagship Coverage</a></h2>
+        <a href="#muse" data-route="muse" class="see-all">Visit the MUSE Cells Section ›</a>
+      </div>
+
+      <div class="muse-lead">
+        <article class="story">
+          <span class="kicker">Stroke Recovery</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">MUSE Cell Infusion Linked to Improved Motor Function at 12 Weeks in Subacute Stroke Cohort</h3></a>
+          <p class="deck" style="margin-top:.5em;">Investigators say the non-tumorigenic, IV-delivered cells homed preferentially to peri-infarct tissue in imaging substudies, though the trial was not powered for efficacy.</p>
+          <p class="byline">By <b>Elena Ruiz, PhD</b><span class="dot">·</span>4 hr ago</p>
+        </article>
+        <div class="explainer-box">
+          <span class="kicker">Explainer</span>
+          <h3>What are MUSE cells?</h3>
+          <p>Multilineage-differentiating Stress Enduring (MUSE) cells are a naturally occurring, stress-tolerant stem cell population found in adult tissue.</p>
+          <ul>
+            <li>Non-tumorigenic in studies to date</li>
+            <li>Home to damaged tissue after simple IV infusion</li>
+            <li>No surgery or conditioning regimen required</li>
+            <li>Studied in stroke, AMI, ALS, and epidermolysis bullosa</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="muse-grid">
+        <article class="story">
+          <span class="kicker">Cardiology</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">CL2020 Shows Signal of Reduced Infarct Size in Post-AMI Patients</h3></a>
+          <p class="deck">Phase II update finds smaller scar burden versus standard of care at 90 days.</p>
+          <p class="byline">By <b>Marcus Ohene, MD, PhD</b><span class="dot">·</span>7 hr ago</p>
+        </article>
+        <article class="story">
+          <span class="kicker">Neuromuscular</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Early-Phase MUSE Trial in ALS Reports Acceptable Safety Profile Through Six Months</h3></a>
+          <p class="deck">No dose-limiting toxicities observed; a larger efficacy cohort is now being planned.</p>
+          <p class="byline">By <b>Priya Anand, MD</b><span class="dot">·</span>Jul 17</p>
+        </article>
+        <article class="story">
+          <span class="kicker">Dermatology</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Systemic MUSE Therapy Explored as Wound-Healing Strategy in Epidermolysis Bullosa</h3></a>
+          <p class="deck">Case-series follow-up suggests reduced wound area in a rare, severe pediatric skin disease.</p>
+          <p class="byline">By <b>Devon Okafor, PhD</b><span class="dot">·</span>Jul 15</p>
+        </article>
+        <article class="story">
+          <span class="kicker">Product Pipeline</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Life Science Institute Advances Second-Generation MUSE Product Toward Regulatory Filing</h3></a>
+          <p class="deck">The candidate is manufactured with a refined selection process intended to improve batch consistency.</p>
+          <p class="byline">By <b>Grace Whitfield, JD</b><span class="dot">·</span>Jul 14</p>
+        </article>
+        <article class="story">
+          <span class="kicker">Mechanism</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Why MUSE Cells Don't Form Tumors: New Data on Pluripotency Gene Silencing</h3></a>
+          <p class="deck">Researchers describe a self-limiting expression pattern that may explain the cells' favorable safety record.</p>
+          <p class="byline">By <b>Naomi Falk, PhD</b><span class="dot">·</span>Jul 12</p>
+        </article>
+        <article class="story">
+          <span class="kicker">Regulatory</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">CL2020 Granted Expedited Review Designation in Second Regional Market</h3></a>
+          <p class="deck">The designation shortens the regulatory timeline for products treating serious, unmet-need conditions.</p>
+          <p class="byline">By <b>Grace Whitfield, JD</b><span class="dot">·</span>Jul 10</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== PATIENT GUIDE ============================== -->
+  <section class="section-block" id="patient-section">
+    <div class="standing-label"><h2>Patient Guide</h2><a href="#patient-section" class="see-all">All Patient Resources ›</a></div>
+    <div class="cards-grid">
+      <article class="story">
+        <span class="kicker">Getting Started</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Is Stem Cell Therapy Right for Me? A Framework for Weighing Your Options</h3></a>
+        <p class="deck">A step-by-step guide to evaluating your condition, the evidence base, and realistic outcomes before you decide.</p>
+        <p class="byline">By <b>Regenera Patient Desk</b><span class="dot">·</span>Jul 18</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Before You Book</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Ten Questions to Ask Before You Book a Stem Cell Procedure</h3></a>
+        <p class="deck">From cell source to trial registration, the questions that separate a rigorous provider from a risky one.</p>
+        <p class="byline">By <b>Regenera Patient Desk</b><span class="dot">·</span>Jul 16</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Regulatory Basics</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">FDA 361 vs. 351: What the Difference Means for Your Safety</h3></a>
+        <p class="deck">Understanding which regulatory pathway a clinic operates under — and why it matters for you.</p>
+        <p class="byline">By <b>Grace Whitfield, JD</b><span class="dot">·</span>Jul 13</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Red Flags</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">How to Spot a Clinic That's Overpromising</h3></a>
+        <p class="deck">Common marketing tells — from "cure-all" language to unregistered trials — and how to verify claims yourself.</p>
+        <p class="byline">By <b>Regenera Patient Desk</b><span class="dot">·</span>Jul 11</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================== POLICY & FDA ============================== -->
+  <section class="section-block" id="policy-section">
+    <div class="standing-label"><h2>Policy &amp; FDA</h2><a href="#policy-section" class="see-all">More Policy Coverage ›</a></div>
+    <div class="cards-grid">
+      <article class="story">
+        <span class="kicker">Regulation</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">FDA Finalizes Updated Guidance on Minimal Manipulation Standards for Cell Therapies</h3></a>
+        <p class="deck">The revised framework clarifies which processing steps keep a product under the lighter-touch Section 361 pathway.</p>
+        <p class="byline">By <b>Grace Whitfield, JD</b><span class="dot">·</span>Today</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Guidelines</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">ISSCR Updates Clinical Translation Guidelines for Unproven Stem Cell Interventions</h3></a>
+        <p class="deck">The revision sharpens language on marketing claims and informed-consent disclosures for early-phase offerings.</p>
+        <p class="byline">By <b>Grace Whitfield, JD</b><span class="dot">·</span>Jul 17</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Reimbursement</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">CMS Weighs Reimbursement Pathway for Autologous Cell Therapies</h3></a>
+        <p class="deck">A proposed coverage determination could reshape access for several approved and investigational products.</p>
+        <p class="byline">By <b>Marcus Ohene, MD, PhD</b><span class="dot">·</span>Jul 14</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Enforcement</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">State Attorneys General Step Up Enforcement Against Unregistered Stem Cell Clinics</h3></a>
+        <p class="deck">A coordinated multi-state effort targets clinics marketing unapproved autologous products for unproven uses.</p>
+        <p class="byline">By <b>Grace Whitfield, JD</b><span class="dot">·</span>Jul 9</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================== BUSINESS ============================== -->
+  <section class="section-block" id="business-section">
+    <div class="standing-label"><h2>Business</h2><a href="#business-section" class="see-all">More Business Coverage ›</a></div>
+    <div class="cards-grid">
+      <article class="story">
+        <span class="kicker">Funding</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Regenerative Medicine Startup Raises $68M Series C to Scale MUSE Manufacturing</h3></a>
+        <p class="deck">Proceeds will fund a second GMP facility as the company prepares for a potential Phase III filing.</p>
+        <p class="byline">By <b>Regenera Business Desk</b><span class="dot">·</span>Jul 18</p>
+      </article>
+      <article class="story">
+        <span class="kicker">M&amp;A</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Two Cell-Therapy Manufacturers Announce Merger to Consolidate GMP Capacity</h3></a>
+        <p class="deck">The combined entity will control manufacturing capacity across three continents, executives said.</p>
+        <p class="byline">By <b>Regenera Business Desk</b><span class="dot">·</span>Jul 16</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Public Markets</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Japanese Biotech Files for Nasdaq IPO on Strength of Stroke Trial Data</h3></a>
+        <p class="deck">The filing cites the company's subacute-stroke MUSE program as a core pipeline asset.</p>
+        <p class="byline">By <b>Regenera Business Desk</b><span class="dot">·</span>Jul 12</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Consolidation</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Private Equity Enters Regenerative Medicine Clinic Networks, Raising Oversight Questions</h3></a>
+        <p class="deck">Consolidators are buying up regional clinics, prompting questions about standards across acquired sites.</p>
+        <p class="byline">By <b>Regenera Business Desk</b><span class="dot">·</span>Jul 8</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================== PODCAST STRIP ============================== -->
+  <section class="podcast-strip" id="podcast-strip">
+    <div class="standing-label"><h2>The Regenera Briefing</h2><a href="#podcast" data-route="podcast" class="see-all">Visit the Show Page ›</a></div>
+
+    <div class="player-card" id="home-player">
+      <div class="player-cover">
+        <svg viewBox="0 0 200 200"><rect width="200" height="200" fill="#0f5c63"/><circle cx="100" cy="100" r="70" fill="none" stroke="#faf8f4" stroke-width="2" opacity=".55"/><circle cx="100" cy="100" r="48" fill="none" stroke="#faf8f4" stroke-width="2" opacity=".75"/><circle cx="100" cy="100" r="26" fill="none" stroke="#faf8f4" stroke-width="2"/><circle cx="100" cy="100" r="5" fill="#faf8f4"/></svg>
+      </div>
+      <div class="player-meta">
+        <div class="eyebrow">Latest Episode · Ep. 48</div>
+        <h3>MUSE at the Bedside: A Cardiologist's View</h3>
+        <p class="ep-desc">With Priya Anand, MD, on how post-AMI infusion protocols are evolving in practice. 34 min · Jul 17, 2026</p>
+        <div class="player-controls">
+          <button class="play-btn" aria-label="Play episode" onclick="togglePlayer(this)"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></button>
+          <div class="scrub">
+            <div class="scrub-track"><div class="scrub-fill"></div></div>
+            <div class="scrub-time"><span>0:00</span><span>34:12</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="episode-list">
+      <div class="episode-row">
+        <span class="ep-num">47</span>
+        <div><div class="ep-title">Reading a Stem Cell Trial Like a Scientist</div><div class="ep-guest">With the Regenera research desk</div></div>
+        <span class="ep-duration">41 min · Jul 10</span>
+        <button class="ep-play" aria-label="Play episode 47" onclick="return false;"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></button>
+      </div>
+      <div class="episode-row">
+        <span class="ep-num">46</span>
+        <div><div class="ep-title">Inside an FDA 351 Filing</div><div class="ep-guest">With Marcus Ibe, JD, regulatory counsel</div></div>
+        <span class="ep-duration">29 min · Jul 3</span>
+        <button class="ep-play" aria-label="Play episode 46" onclick="return false;"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></button>
+      </div>
+      <div class="episode-row">
+        <span class="ep-num">45</span>
+        <div><div class="ep-title">Patient Stories: Weighing Risk and Hope</div><div class="ep-guest">With two patient guests</div></div>
+        <span class="ep-duration">38 min · Jun 26</span>
+        <button class="ep-play" aria-label="Play episode 45" onclick="return false;"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></button>
+      </div>
+    </div>
+
+    <div class="listen-on">
+      <a href="#podcast" data-route="podcast" class="listen-btn"><svg viewBox="0 0 24 24"><use href="#i-apple"/></svg>Apple Podcasts</a>
+      <a href="#podcast" data-route="podcast" class="listen-btn"><svg viewBox="0 0 24 24"><use href="#i-spotify"/></svg>Spotify</a>
+      <a href="#podcast" data-route="podcast" class="listen-btn"><svg viewBox="0 0 24 24"><use href="#i-youtube"/></svg>YouTube</a>
+      <a href="#podcast" data-route="podcast" class="listen-btn"><svg viewBox="0 0 24 24"><use href="#i-rss"/></svg>RSS Feed</a>
+    </div>
+  </section>
+
+  <!-- ============================== SOCIAL ============================== -->
+  <section class="social-block" id="social-section">
+    <div class="standing-label"><h2>From the Research Community</h2><a href="#home" data-route="home" class="see-all">More Curated Posts ›</a></div>
+    <div class="social-grid">
+      <div class="social-card">
+        <svg class="social-plat" viewBox="0 0 24 24"><use href="#i-x"/></svg>
+        <div class="social-head">
+          <svg class="avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="#0f5c63"/><text x="20" y="26" font-family="Georgia,serif" font-size="15" fill="#faf8f4" text-anchor="middle">IS</text></svg>
+          <div><div class="social-name">ISSCR</div><div class="social-handle">@ISSCRnews · 6h</div></div>
+        </div>
+        <p class="social-text">New clinical translation guidelines are live today — updated language on marketing claims, informed consent, and unproven interventions. Essential reading for any group considering a first-in-human protocol.</p>
+        <div class="social-eng">
+          <span><svg viewBox="0 0 24 24"><use href="#i-heart"/></svg>312</span>
+          <span><svg viewBox="0 0 24 24"><use href="#i-repost"/></svg>84</span>
+          <span><svg viewBox="0 0 24 24"><use href="#i-reply"/></svg>27</span>
+        </div>
+      </div>
+      <div class="social-card">
+        <svg class="social-plat" viewBox="0 0 24 24"><use href="#i-linkedin"/></svg>
+        <div class="social-head">
+          <svg class="avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="#1a1a1a"/><text x="20" y="26" font-family="Georgia,serif" font-size="15" fill="#faf8f4" text-anchor="middle">LS</text></svg>
+          <div><div class="social-name">Life Science Institute</div><div class="social-handle">Company Page · 11h</div></div>
+        </div>
+        <p class="social-text">Encouraged by the six-month safety data from our ALS cohort. Small numbers, early days — but the consistency across sites gives us confidence to move toward a larger efficacy-focused study. Full summary on our IR page.</p>
+        <div class="social-eng">
+          <span><svg viewBox="0 0 24 24"><use href="#i-heart"/></svg>540</span>
+          <span><svg viewBox="0 0 24 24"><use href="#i-repost"/></svg>96</span>
+          <span><svg viewBox="0 0 24 24"><use href="#i-reply"/></svg>41</span>
+        </div>
+      </div>
+      <div class="social-card">
+        <svg class="social-plat" viewBox="0 0 24 24"><use href="#i-x"/></svg>
+        <div class="social-head">
+          <svg class="avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="#8a8577"/><text x="20" y="26" font-family="Georgia,serif" font-size="15" fill="#faf8f4" text-anchor="middle">PA</text></svg>
+          <div><div class="social-name">Priya Anand, MD</div><div class="social-handle">@drpriyaanand · 1d</div></div>
+        </div>
+        <p class="social-text">Talked to a lot of patients this week asking about MUSE for stroke recovery. Important context: this is investigational, delivered in a trial setting, and the data so far — while promising — is not yet proof of efficacy. Ask about trial registration.</p>
+        <div class="social-eng">
+          <span><svg viewBox="0 0 24 24"><use href="#i-heart"/></svg>1.2k</span>
+          <span><svg viewBox="0 0 24 24"><use href="#i-repost"/></svg>310</span>
+          <span><svg viewBox="0 0 24 24"><use href="#i-reply"/></svg>88</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+  <!-- ============================== NEWSLETTER ============================== -->
+  <section class="newsletter">
+    <div class="wrap">
+      <h2>Get the Daily Briefing</h2>
+      <p>One email, every weekday morning — the stem cell and regenerative medicine developments worth your time, in plain language.</p>
+      <form class="nl-form" onsubmit="event.preventDefault(); return false;">
+        <input type="email" placeholder="you@email.com" aria-label="Email address" required>
+        <button type="submit">Subscribe</button>
+      </form>
+      <p class="nl-fine">No spam. Unsubscribe anytime. See our Privacy Policy.</p>
+    </div>
+  </section>
+</section>
+<!-- /page-home -->
+
+<!-- ==========================================================================
+     PAGE: ARTICLE
+     ========================================================================== -->
+<section id="page-article" class="page">
+  <div class="article-wrap">
+    <a href="#home" data-route="home" class="back-link"><svg viewBox="0 0 24 24" width="14" height="14"><use href="#i-back"/></svg>Back to Regenera Home</a>
+
+    <span class="kicker">Stroke Recovery · MUSE Cells</span>
+    <h1 class="article-hed">MUSE Cell Infusion Linked to Improved Motor Function at 12 Weeks in Subacute Stroke Cohort</h1>
+    <p class="article-deck">In a Phase II cohort of 58 patients treated 10–30 days after ischemic stroke, a single intravenous dose of MUSE cells was associated with meaningful gains on standardized motor scales, researchers reported — though the study was not designed to prove efficacy.</p>
+
+    <div class="article-byline">
+      <svg class="av" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="#0f5c63"/><text x="20" y="26" font-family="Georgia,serif" font-size="14" fill="#faf8f4" text-anchor="middle">ER</text></svg>
+      <div>
+        <div><b style="color:var(--ink-soft); font-weight:700;">By Elena Ruiz, PhD</b></div>
+        <div>Boston, Mass. <span class="dot">·</span> Jul 19, 2026 <span class="dot">·</span> 6 min read</div>
+      </div>
+    </div>
+
+    <div class="article-hero">
+      <div class="thumb-svg">
+        <svg viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+          <rect width="640" height="360" fill="#eef0e9"/>
+          <g stroke="#0f5c63" stroke-width="1" opacity=".3"><line x1="0" y1="90" x2="640" y2="90"/><line x1="0" y1="180" x2="640" y2="180"/><line x1="0" y1="270" x2="640" y2="270"/></g>
+          <circle cx="260" cy="180" r="90" fill="none" stroke="#1a1a1a" stroke-width="1.6"/>
+          <circle cx="410" cy="140" r="55" fill="none" stroke="#0f5c63" stroke-width="1.8"/>
+          <circle cx="390" cy="270" r="46" fill="none" stroke="#1a1a1a" stroke-width="1.4"/>
+          <line x1="330" y1="165" x2="375" y2="150" stroke="#1a1a1a" stroke-width="1.1"/>
+          <line x1="300" y1="235" x2="365" y2="260" stroke="#1a1a1a" stroke-width="1.1"/>
+          <circle cx="260" cy="180" r="4.5" fill="#1a1a1a"/><circle cx="410" cy="140" r="4" fill="#0f5c63"/><circle cx="390" cy="270" r="3.6" fill="#1a1a1a"/>
+        </svg>
+      </div>
+      <div class="thumb-cap">Illustration: MUSE cells are theorized to sense sphingosine-1-phosphate signals released by damaged tissue and home there after IV delivery. Credit: Regenera Graphics.</div>
+    </div>
+
+    <div class="article-body">
+      <p>A Phase II study of an intravenously delivered MUSE cell product reported improved motor function scores among stroke patients treated within a month of their event, according to results summarized this week from a multi-site academic consortium. The open-label cohort of 58 participants showed a mean improvement on the Fugl-Meyer motor assessment that investigators described as "clinically meaningful" relative to a matched historical comparison group, though the trial lacked a concurrent placebo arm.</p>
+      <p>The therapy, delivered as a single outpatient infusion roughly two to four weeks after stroke onset, required no immunosuppression and no surgical delivery — a departure from many earlier cell-therapy approaches for stroke, which relied on direct intracerebral injection. Researchers say that simplicity is central to MUSE cells' appeal as a scalable treatment.</p>
+
+      <h3>How the cells are thought to work</h3>
+      <p>MUSE — Multilineage-differentiating Stress Enduring — cells are a small, naturally occurring population of stress-tolerant stem cells first identified within adult mesenchymal tissue. Unlike induced pluripotent stem cells, they are collected and expanded without genetic reprogramming, and preclinical work to date has not shown them to form tumors. After intravenous infusion, MUSE cells appear to sense signals released by damaged tissue — including sphingosine-1-phosphate — and preferentially migrate, or "home," to the site of injury, where they are thought to differentiate and support repair through both direct and paracrine mechanisms.</p>
+      <p>In this cohort, imaging substudies using labeled-cell tracking in a subset of patients showed accumulation of signal in peri-infarct brain tissue within 72 hours of infusion, consistent with that homing hypothesis, according to the researchers' summary of the data.</p>
+
+      <blockquote class="pull-quote">
+        "The most striking observation wasn't a single dramatic recovery — it was the consistency of small gains across a fairly diverse patient population."
+        <cite>— Marcus Ohene, MD, PhD, the trial's principal investigator</cite>
+      </blockquote>
+
+      <h3>What comes next</h3>
+      <p>The investigators caution against overinterpreting an open-label, non-randomized dataset, and note that spontaneous recovery in the weeks following stroke is well documented and could account for some of the observed improvement. A larger, randomized, sham-controlled Phase III trial is now being designed, with enrollment expected to begin at additional academic medical centers in the coming months.</p>
+      <p>Regulatory observers say a positive Phase III readout would represent one of the more significant developments yet for cell-based stroke therapy — a field that has seen repeated early promise followed by mixed confirmatory results. For now, the therapy remains investigational and is available only through registered clinical trials.</p>
+    </div>
+
+    <div class="source-module">
+      <span class="kicker">Source &amp; Aggregation</span>
+      <p>This story was aggregated and summarized by Regenera staff from a peer-reviewed report and accompanying press materials. Regenera did not independently verify the underlying trial data.</p>
+      <p><strong>Primary source:</strong> Nature Regenerative Medicine, July 2026 — "Intravenous MUSE Cell Therapy in Subacute Ischemic Stroke: A Phase II Cohort Study." <a href="#article" data-route="article">Read the original study ›</a></p>
+      <p><strong>Additional reporting:</strong> Life Science Institute press release, July 17, 2026.</p>
+    </div>
+
+    <div class="share-row">
+      <span>Share</span>
+      <div class="share-icons">
+        <a href="#article" onclick="return false;" aria-label="Share on X"><svg viewBox="0 0 24 24"><use href="#i-x"/></svg></a>
+        <a href="#article" onclick="return false;" aria-label="Share on LinkedIn"><svg viewBox="0 0 24 24"><use href="#i-linkedin"/></svg></a>
+        <a href="#article" onclick="return false;" aria-label="Share by email"><svg viewBox="0 0 24 24"><use href="#i-mail"/></svg></a>
+        <a href="#article" onclick="return false;" aria-label="Copy link"><svg viewBox="0 0 24 24"><use href="#i-link"/></svg></a>
+      </div>
+    </div>
+
+    <div class="author-bio">
+      <svg class="av" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="#0f5c63"/><text x="20" y="26" font-family="Georgia,serif" font-size="14" fill="#faf8f4" text-anchor="middle">ER</text></svg>
+      <div>
+        <h4>Elena Ruiz, PhD</h4>
+        <p>Elena Ruiz, PhD, covers regenerative medicine and clinical trial design for Regenera. She previously worked in translational neuroscience research before moving into science journalism.</p>
+      </div>
+    </div>
+
+    <div class="related-head">Related Coverage</div>
+    <div class="related-grid">
+      <article class="story">
+        <span class="kicker">Cardiology</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">CL2020 Shows Signal of Reduced Infarct Size in Post-AMI Patients</h3></a>
+        <p class="deck">Phase II update finds smaller scar burden versus standard of care at 90 days.</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Mechanism</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Why MUSE Cells Don't Form Tumors</h3></a>
+        <p class="deck">New data on the self-limiting gene expression pattern behind the cells' safety record.</p>
+      </article>
+      <article class="story">
+        <span class="kicker">Neuromuscular</span>
+        <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Early-Phase MUSE Trial in ALS Reports Acceptable Safety Profile</h3></a>
+        <p class="deck">No dose-limiting toxicities observed through six months of follow-up.</p>
+      </article>
+    </div>
+  </div>
+</section>
+<!-- /page-article -->
+
+<!-- ==========================================================================
+     PAGE: MUSE SECTION
+     ========================================================================== -->
+<section id="page-muse" class="page">
+  <div class="section-page-head">
+    <span class="kicker">Flagship Vertical</span>
+    <h1 class="hed">MUSE Cells</h1>
+    <p>MUSE — Multilineage-differentiating Stress Enduring — cells are a naturally occurring, stress-tolerant stem cell population identified within adult tissue. Non-tumorigenic and deliverable by simple intravenous infusion, they are being studied for their ability to home to damaged tissue and support repair across a growing range of conditions. Regenera tracks the clinical, regulatory, and business developments shaping this fast-moving field.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="section-lead">
+      <article class="story">
+        <a href="#article" data-route="article" class="hed-link">
+          <div class="thumb-svg">
+            <svg viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+              <rect width="640" height="360" fill="#eef0e9"/>
+              <circle cx="230" cy="170" r="70" fill="none" stroke="#1a1a1a" stroke-width="1.4"/>
+              <circle cx="380" cy="130" r="46" fill="none" stroke="#0f5c63" stroke-width="1.6"/>
+              <circle cx="360" cy="250" r="58" fill="none" stroke="#1a1a1a" stroke-width="1.4"/>
+              <line x1="290" y1="150" x2="345" y2="140" stroke="#1a1a1a" stroke-width="1"/>
+              <line x1="270" y1="210" x2="330" y2="235" stroke="#1a1a1a" stroke-width="1"/>
+              <line x1="400" y1="170" x2="380" y2="205" stroke="#0f5c63" stroke-width="1"/>
+              <circle cx="230" cy="170" r="4" fill="#1a1a1a"/><circle cx="380" cy="130" r="3.4" fill="#0f5c63"/><circle cx="360" cy="250" r="3.8" fill="#1a1a1a"/>
+            </svg>
+          </div>
+        </a>
+        <div style="margin-top:var(--s4);">
+          <span class="kicker">Stroke Recovery</span>
+          <a href="#article" data-route="article" class="hed-link"><h2 class="hed">MUSE Cell Infusion Linked to Improved Motor Function at 12 Weeks in Subacute Stroke Cohort</h2></a>
+          <p class="deck" style="margin-top:.6em;">Investigators say the non-tumorigenic, IV-delivered cells homed preferentially to peri-infarct tissue in imaging substudies.</p>
+          <p class="byline">By <b>Elena Ruiz, PhD</b><span class="dot">·</span>4 hr ago<span class="dot">·</span>6 min read</p>
+        </div>
+      </article>
+      <div class="explainer-box">
+        <span class="kicker">Explainer</span>
+        <h3>What are MUSE cells?</h3>
+        <p>MUSE cells were first described as a stress-tolerant subpopulation within mesenchymal-lineage cells, identifiable by the surface marker SSEA-3. They combine some pluripotent-like differentiation capacity with a strong non-tumorigenic safety profile.</p>
+        <ul>
+          <li>Discovered within bone marrow, adipose, and connective tissue</li>
+          <li>Survive stress conditions that eliminate most other cell types</li>
+          <li>Home to injury sites via sphingosine-1-phosphate signaling</li>
+          <li>Delivered by simple IV infusion — no cell-matching required for some products</li>
+          <li>Under study for stroke, AMI, ALS, and epidermolysis bullosa</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="section-block" style="border-top:none;">
+      <div class="standing-label"><h2>More MUSE Coverage</h2></div>
+      <div class="muse-grid">
+        <article class="story">
+          <span class="kicker">Cardiology</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">CL2020 Shows Signal of Reduced Infarct Size in Post-AMI Patients</h3></a>
+          <p class="deck">Phase II update finds smaller scar burden versus standard of care at 90 days.</p>
+          <p class="byline">By <b>Marcus Ohene, MD, PhD</b><span class="dot">·</span>7 hr ago</p>
+        </article>
+        <article class="story">
+          <span class="kicker">Neuromuscular</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Early-Phase MUSE Trial in ALS Reports Acceptable Safety Profile</h3></a>
+          <p class="deck">No dose-limiting toxicities observed through six months of follow-up.</p>
+          <p class="byline">By <b>Priya Anand, MD</b><span class="dot">·</span>Jul 17</p>
+        </article>
+        <article class="story">
+          <span class="kicker">Dermatology</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Systemic MUSE Therapy Explored in Epidermolysis Bullosa</h3></a>
+          <p class="deck">Case-series follow-up suggests reduced wound area in a rare, severe pediatric skin disease.</p>
+          <p class="byline">By <b>Devon Okafor, PhD</b><span class="dot">·</span>Jul 15</p>
+        </article>
+        <article class="story">
+          <span class="kicker">Product Pipeline</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Life Science Institute Advances Second-Gen MUSE Product Toward Filing</h3></a>
+          <p class="deck">The candidate uses a refined selection process intended to improve batch consistency.</p>
+          <p class="byline">By <b>Grace Whitfield, JD</b><span class="dot">·</span>Jul 14</p>
+        </article>
+        <article class="story">
+          <span class="kicker">Mechanism</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">Why MUSE Cells Don't Form Tumors</h3></a>
+          <p class="deck">New data on the self-limiting gene expression pattern behind the cells' safety record.</p>
+          <p class="byline">By <b>Naomi Falk, PhD</b><span class="dot">·</span>Jul 12</p>
+        </article>
+        <article class="story">
+          <span class="kicker">Patient Perspective</span>
+          <a href="#article" data-route="article" class="hed-link"><h3 class="hed">What It's Like to Receive an Investigational MUSE Infusion</h3></a>
+          <p class="deck">A first-person account of enrolling in a Phase II trial, from screening to follow-up visits.</p>
+          <p class="byline">By <b>Regenera Patient Desk</b><span class="dot">·</span>Jul 9</p>
+        </article>
+      </div>
+
+      <div class="tracker">
+        <div class="tracker-label">MUSE Trials Tracker</div>
+        <div class="tracker-scroll">
+        <table>
+          <thead><tr><th>Therapy</th><th>Indication</th><th>Phase</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>CL2020 (MUSE)</td><td>Acute Myocardial Infarction</td><td>Phase III</td><td><span class="status-pill status-enrolling">Enrolling</span></td></tr>
+            <tr><td>CL2020 (MUSE)</td><td>Ischemic Stroke</td><td>Phase II</td><td><span class="status-pill status-active">Active, Not Recruiting</span></td></tr>
+            <tr><td>MUSE-ALS01</td><td>Amyotrophic Lateral Sclerosis</td><td>Phase I/II</td><td><span class="status-pill status-enrolling">Enrolling</span></td></tr>
+            <tr><td>MUSE-EB02</td><td>Epidermolysis Bullosa</td><td>Phase II</td><td><span class="status-pill status-active">Follow-Up</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+<!-- /page-muse -->
+
+<!-- ==========================================================================
+     PAGE: PODCAST
+     ========================================================================== -->
+<section id="page-podcast" class="page">
+  <div class="wrap">
+    <div class="podcast-hero">
+      <svg class="cover-lg" viewBox="0 0 300 300"><rect width="300" height="300" fill="#0f5c63"/><circle cx="150" cy="150" r="105" fill="none" stroke="#faf8f4" stroke-width="3" opacity=".5"/><circle cx="150" cy="150" r="72" fill="none" stroke="#faf8f4" stroke-width="3" opacity=".75"/><circle cx="150" cy="150" r="40" fill="none" stroke="#faf8f4" stroke-width="3"/><circle cx="150" cy="150" r="8" fill="#faf8f4"/><text x="150" y="270" font-family="Georgia,serif" font-size="18" fill="#faf8f4" text-anchor="middle" letter-spacing="1">THE BRIEFING</text></svg>
+      <div>
+        <span class="kicker">Podcast</span>
+        <h1>The Regenera Briefing</h1>
+        <p>Twice weekly, The Regenera Briefing translates the week's stem cell and regenerative medicine developments into a clear, non-hype conversation for clinicians, scientists, and patients alike. Hosted by the Regenera editorial team.</p>
+        <div class="listen-on">
+          <a href="#podcast" onclick="return false;" class="listen-btn"><svg viewBox="0 0 24 24"><use href="#i-apple"/></svg>Apple Podcasts</a>
+          <a href="#podcast" onclick="return false;" class="listen-btn"><svg viewBox="0 0 24 24"><use href="#i-spotify"/></svg>Spotify</a>
+          <a href="#podcast" onclick="return false;" class="listen-btn"><svg viewBox="0 0 24 24"><use href="#i-youtube"/></svg>YouTube</a>
+          <a href="#podcast" onclick="return false;" class="listen-btn"><svg viewBox="0 0 24 24"><use href="#i-rss"/></svg>RSS Feed</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="player-card" id="show-player">
+      <div class="player-cover">
+        <svg viewBox="0 0 200 200"><rect width="200" height="200" fill="#0f5c63"/><circle cx="100" cy="100" r="70" fill="none" stroke="#faf8f4" stroke-width="2" opacity=".55"/><circle cx="100" cy="100" r="48" fill="none" stroke="#faf8f4" stroke-width="2" opacity=".75"/><circle cx="100" cy="100" r="26" fill="none" stroke="#faf8f4" stroke-width="2"/><circle cx="100" cy="100" r="5" fill="#faf8f4"/></svg>
+      </div>
+      <div class="player-meta">
+        <div class="eyebrow">Featured · Ep. 48</div>
+        <h3>MUSE at the Bedside: A Cardiologist's View</h3>
+        <p class="ep-desc">With Priya Anand, MD, on how post-AMI infusion protocols are evolving in practice. 34 min · Jul 17, 2026</p>
+        <div class="player-controls">
+          <button class="play-btn" aria-label="Play episode" onclick="togglePlayer(this)"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></button>
+          <div class="scrub">
+            <div class="scrub-track"><div class="scrub-fill"></div></div>
+            <div class="scrub-time"><span>0:00</span><span>34:12</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="section-block">
+      <div class="standing-label"><h2>All Episodes</h2></div>
+      <div class="episode-list">
+        <div class="episode-row">
+          <span class="ep-num">48</span>
+          <div><div class="ep-title">MUSE at the Bedside: A Cardiologist's View</div><div class="ep-guest">With Priya Anand, MD</div></div>
+          <span class="ep-duration">34 min · Jul 17</span>
+          <button class="ep-play" aria-label="Play episode 48" onclick="return false;"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></button>
+        </div>
+        <div class="episode-row">
+          <span class="ep-num">47</span>
+          <div><div class="ep-title">Reading a Stem Cell Trial Like a Scientist</div><div class="ep-guest">With the Regenera research desk</div></div>
+          <span class="ep-duration">41 min · Jul 10</span>
+          <button class="ep-play" aria-label="Play episode 47" onclick="return false;"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></button>
+        </div>
+        <div class="episode-row">
+          <span class="ep-num">46</span>
+          <div><div class="ep-title">Inside an FDA 351 Filing</div><div class="ep-guest">With Marcus Ibe, JD, regulatory counsel</div></div>
+          <span class="ep-duration">29 min · Jul 3</span>
+          <button class="ep-play" aria-label="Play episode 46" onclick="return false;"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></button>
+        </div>
+        <div class="episode-row">
+          <span class="ep-num">45</span>
+          <div><div class="ep-title">Patient Stories: Weighing Risk and Hope</div><div class="ep-guest">With two patient guests</div></div>
+          <span class="ep-duration">38 min · Jun 26</span>
+          <button class="ep-play" aria-label="Play episode 45" onclick="return false;"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></button>
+        </div>
+        <div class="episode-row">
+          <span class="ep-num">44</span>
+          <div><div class="ep-title">The Business of Regenerative Medicine</div><div class="ep-guest">With a venture investor covering the sector</div></div>
+          <span class="ep-duration">45 min · Jun 19</span>
+          <button class="ep-play" aria-label="Play episode 44" onclick="return false;"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></button>
+        </div>
+        <div class="episode-row">
+          <span class="ep-num">43</span>
+          <div><div class="ep-title">What Exosomes Can (and Can't) Do</div><div class="ep-guest">With Naomi Falk, PhD</div></div>
+          <span class="ep-duration">33 min · Jun 12</span>
+          <button class="ep-play" aria-label="Play episode 43" onclick="return false;"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></button>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+<!-- /page-podcast -->
+
+</main>
+
+<!-- ============================== FOOTER ============================== -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#home" data-route="home" class="wordmark"><svg viewBox="0 0 44 44"><use href="#logo-mark"/></svg><h1>Regenera</h1></a>
+        <p class="footer-desc">Independent reporting on stem cell, MUSE, and regenerative medicine — for scientists, physicians, and patients.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Sections</h4>
+        <ul>
+          <li><a href="#research-section" data-route="research-section">Research</a></li>
+          <li><a href="#trials-section" data-route="trials-section">Clinical Trials</a></li>
+          <li><a href="#muse" data-route="muse">MUSE Cells</a></li>
+          <li><a href="#patient-section" data-route="patient-section">Patient Guide</a></li>
+          <li><a href="#policy-section" data-route="policy-section">Policy &amp; FDA</a></li>
+          <li><a href="#business-section" data-route="business-section">Business</a></li>
+          <li><a href="#podcast" data-route="podcast">Podcast</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#home" data-route="home">About Regenera</a></li>
+          <li><a href="#home" data-route="home">Contact the Newsroom</a></li>
+          <li><a href="#home" data-route="home">Careers</a></li>
+          <li><a href="#home" data-route="home">Ethics Policy</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#home" data-route="home">Advertise With Us</a></li>
+          <li><a href="#home" data-route="home">RSS Feed</a></li>
+          <li><a href="#home" data-route="home">Sitemap</a></li>
+          <li><a href="#home" data-route="home">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-legal">
+      <p class="legal-box"><strong>Editorial independence.</strong> Regenera's editorial team maintains full independence over story selection, reporting, and analysis. Underwriters and sponsors have no input into editorial content, review coverage before publication, or influence which stories run. See our Ethics Policy for details.</p>
+      <p class="sponsor-line">This edition of Regenera is underwritten in part by an unrestricted educational grant from [Provider Name]. Underwriters do not influence editorial coverage.</p>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 Regenera Newswire. All rights reserved. Sample content for demonstration purposes.</span>
+      <nav><a href="#home" data-route="home">About</a><a href="#home" data-route="home">Contact</a><a href="#home" data-route="home">Ethics</a><a href="#home" data-route="home">Advertise</a></nav>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================== PITCH MOCKUP RIBBON ============================== -->
+<div class="pitch-ribbon" id="pitch-ribbon">
+  <span>Pitch Mockup — Sample Content</span>
+  <button aria-label="Dismiss" onclick="document.getElementById('pitch-ribbon').classList.add('dismissed')">
+    <svg viewBox="0 0 24 24" width="12" height="12"><use href="#i-close"/></svg>
+  </button>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var ROUTES = ['home','article','muse','podcast'];
+  var pages = {
+    home: document.getElementById('page-home'),
+    article: document.getElementById('page-article'),
+    muse: document.getElementById('page-muse'),
+    podcast: document.getElementById('page-podcast')
+  };
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('[data-route]'));
+
+  function showPage(name){
+    Object.keys(pages).forEach(function(k){
+      pages[k].classList.toggle('active', k === name);
+    });
+  }
+
+  function setActiveNav(raw){
+    navLinks.forEach(function(link){
+      link.classList.toggle('active', link.dataset.route === raw);
+    });
+  }
+
+  function renderRoute(){
+    var raw = (location.hash || '#home').slice(1) || 'home';
+    var pageToShow = ROUTES.indexOf(raw) !== -1 ? raw : 'home';
+    showPage(pageToShow);
+    setActiveNav(raw);
+
+    if (ROUTES.indexOf(raw) !== -1){
+      window.scrollTo(0, 0);
+    } else {
+      var target = document.getElementById(raw);
+      if (target){
+        window.requestAnimationFrame(function(){
+          setTimeout(function(){
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 20);
+        });
+      } else {
+        window.scrollTo(0, 0);
+      }
+    }
+  }
+
+  function goTo(hash){
+    if (location.hash === '#' + hash){
+      renderRoute();
+    } else {
+      location.hash = hash;
+    }
+  }
+
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a[data-route]');
+    if (!a) return;
+    e.preventDefault();
+    goTo(a.dataset.route);
+  });
+
+  window.addEventListener('hashchange', renderRoute);
+  document.addEventListener('DOMContentLoaded', renderRoute);
+  renderRoute();
+
+  // fake podcast player toggle (cosmetic only, no real audio)
+  window.togglePlayer = function(btn){
+    var card = btn.closest('.player-card');
+    var playing = card.classList.toggle('playing');
+    var use = btn.querySelector('use');
+    use.setAttribute('href', playing ? '#i-pause' : '#i-play');
+    if (playing){
+      setTimeout(function(){
+        if (card.classList.contains('playing')){
+          card.classList.remove('playing');
+          use.setAttribute('href', '#i-play');
+        }
+      }, 32000);
+    }
+  };
+})();
+</script>
+
+</body>
+</html>
